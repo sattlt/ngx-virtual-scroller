@@ -1,0 +1,52 @@
+@import '../styles/theme';
+@import '../styles/mixin';
+
+:host {
+  background-color: #ddd;
+  display: block;
+  padding: 30px;
+
+  header {
+    @include boxShadow(2);
+    align-items: center;
+    background-color: $primary;
+    color: $white;
+    display: flex;
+    display: flex;
+    flex-direction: row;
+    height: 55px;
+    padding: 0 16px;
+
+    #generator {
+      flex: 1 0;
+    }
+
+    #fetching {
+      flex: 1 0;
+      text-align: right;
+    }
+  
+  }
+
+  #virtual-scroller {
+    @include boxShadow(2);
+    background-color: $white;
+    display: block;
+    height: 315px;
+    list-style: none;
+    overflow: hidden;
+    overflow-y: auto;
+    padding: 0;
+
+    li {
+      border-bottom: solid 1px #dfdfdf;
+      color: #333;
+      display: flex;
+      align-items: center;
+      height: 45px;
+      line-height: 30px;
+      margin: 0;
+      padding: 0 16px;
+    }
+  }
+}

@@ -1,0 +1,32 @@
+<header>
+
+  <div #generator id="generator">
+    <select sc-select [(ngModel)]="itemsToGenerate">
+      <option [value]="1">1Item</option>
+      <option [value]="5">5 Items</option>
+      <option [value]="10">10 Items</option>
+      <option [value]="30">30 Items</option>
+      <option [value]="100">100 Items</option>
+      <option [value]="123">123 Items</option>
+      <option [value]="1000">1.000 Items</option>
+      <option [value]="10000">10.000 Items</option>
+      <option [value]="100000">100.000 Items</option>
+      <option [value]="1000000">1.000.000 Items</option>
+      <option [value]="10000000">10.000.000 Items (!)</option>
+      <option [value]="100000000">100.000.000 Items (!)</option>
+      <option [value]="1000000000">1.000.000.000 Items (!)</option>
+    </select>
+    <button sc-button (click)="showItems()">Generate</button>
+  </div>
+  
+  <div #fetching id="fetching">
+    <input sc-checkbox id="enableFetchCheckbox" type="checkbox" [(ngModel)]="enableFetch">
+    <label for="enableFetchCheckbox">Enable Fetch</label>
+  </div>
+</header>
+
+<ul #vitualScroller id="virtual-scroller" [virtualScrollFor]="virtualScrollItems" (viewChanged)="data = $event" [itemHeight]="45">
+  <li *ngFor="let item of data?.collection; let idx = index">
+    {{ item }}
+  </li>
+</ul>
