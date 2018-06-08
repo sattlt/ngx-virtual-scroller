@@ -40,8 +40,14 @@ export class VirtualScrollComponent implements OnChanges {
     this.calculateDimensions();
 
     if (changes['virtualScrollFor'] !== undefined) {
+
+      const elem = (this._containerRef.nativeElement as HTMLElement);
+
       this._startIndex = 0;
-      (this._containerRef.nativeElement as HTMLElement).scrollTo({ top: 0 });
+
+      if (elem['scrollTo']) {
+        elem.scrollTo({ top: 0 });
+      }
     }
 
     this.refresh();
@@ -52,8 +58,9 @@ export class VirtualScrollComponent implements OnChanges {
 
       if (!this._isScrollEventRegistered) {
 
-        this._renderer.listen(this._containerRef.nativeElement, 'scroll', (e) => {
-          const st = event.srcElement.scrollTop;
+        this._renderer.listen(this._containerRef.nativeElement, 'scroll', (event: Event) => {
+          const st = (event.target as Element).scrollTop;
+
           this._scrollTop = (st < this._paddingHeight - this._containerHeight) ? st : this._paddingHeight - this._containerHeight;
 
           console.log('Evetn: ', this._scrollTop, this._paddingHeight);
@@ -88,8 +95,7 @@ export class VirtualScrollComponent implements OnChanges {
     this._renderer.setStyle(this._contentRef.nativeElement, 'transform', `translateY(${translateY}px)`);
 
     const start = Math.ceil(this._scrollTop / this.itemHeight);
-    const visibleItemsLength = Math.ceil(this._containerHeight / this.itemHeight);
-    const lst = this.getSplicedList(start, visibleItemsLength);
+    const lst = this.getSplicedList(start, this._countVisibleItemsPerPage);
 
     return [lst, start];
   }
@@ -102,7 +108,7 @@ export class VirtualScrollComponent implements OnChanges {
     const paddingHeight = this.itemHeight * this.virtualScrollFor.length;
     this._paddingHeight = (paddingHeight > 2000000) ? 2000000 : paddingHeight;
 
-    this._countVisibleItemsPerPage = Math.ceil(this._containerHeight / this.itemHeight);
+    this._countVisibleItemsPerPage = Math.ceil(this._containerHeight / this.itemHeight) + 3;
 
     this._renderer.setStyle(this._paddingRef.nativeElement, 'height', `${this._paddingHeight}px`);
   }
