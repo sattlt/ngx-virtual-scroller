@@ -18,15 +18,28 @@
     </select>
     <button sc-button (click)="showItems()">Generate</button>
   </div>
-  
+
   <div #fetching id="fetching">
     <input sc-checkbox id="enableFetchCheckbox" type="checkbox" [(ngModel)]="enableFetch">
     <label for="enableFetchCheckbox">Enable Fetch</label>
   </div>
+  <div #noScrollbar id="no-scrollbar">
+    <input sc-checkbox id="enableNoScrollbar" type="checkbox" [(ngModel)]="noScrollBar">
+    <label for="enableNoScrollbar">NoScrollbar</label>
+  </div>
 </header>
 
-<ul #vitualScroller id="virtual-scroller" [virtualScrollFor]="virtualScrollItems" (viewChanged)="data = $event" [itemHeight]="45">
-  <li *ngFor="let item of data?.collection; let idx = index">
-    {{ item }}
+<ul #virtualScroller
+  class="virtual-scroll"
+  [virtualScrollFor]="virtualScrollItems" 
+  (viewChanged)="data = $event"
+  (fetchData)="fetch($event)"
+  [noScrollBar]="noScrollBar" 
+  [itemHeight]="45">
+
+  <li *ngFor="let item of data?.collection">
+    <span>{{ item }}</span>
+    <span>END</span>
   </li>
+
 </ul>

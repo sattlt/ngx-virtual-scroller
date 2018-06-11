@@ -1,30 +1,40 @@
 // tslint:disable-next-line:max-line-length
-import { Component, OnInit, OnChanges, SimpleChanges, Input, EventEmitter, Output, Renderer2, ElementRef, NgZone, ViewChild, enableProdMode } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostBinding, Input, NgZone, OnChanges, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import { Subject } from 'rxjs';
 import { ViewCollection } from './view-collection';
 
 @Component({
   // tslint:disable-next-line:component-selector
   selector: '[virtualScrollFor]',
   template: `
-    <div #vcPadding class="virtual-scroll-padding"></div>
-    <div #vcContent class="virtual-scroll-content"><ng-content></ng-content></div>
+    <div #vcWrapper class="virtual-scroll-wrapper">
+      <div #vcPadding class="virtual-scroll-padding"></div>
+      <div #vcContent class="virtual-scroll-content"><ng-content></ng-content></div>
+    </div>
   `,
   styleUrls: ['./virtual-scroll.component.scss']
 })
 export class VirtualScrollComponent implements OnChanges {
+  @HostBinding('class') cssClass = 'virtual-scroll';
+  @HostBinding('class.no-scrollbar') @Input() noScrollBar = false;
 
   @Input() virtualScrollFor: Array<any> = [];
   @Input() itemHeight: number;
+
   @Output() viewChanged = new EventEmitter<ViewCollection>();
+  @Output() fetchData = new EventEmitter<any>();
+
   @ViewChild('vcContent', { read: ElementRef }) private _contentRef: ElementRef;
   @ViewChild('vcPadding', { read: ElementRef }) private _paddingRef: ElementRef;
+  @ViewChild('vcWrapper', { read: ElementRef }) private _wrapperRef: ElementRef;
 
   private _isScrollEventRegistered = false;
   private _containerHeight: number;
+  private _containerWidth: number;
   private _paddingHeight: number;
-  private _startIndex = 0;
   private _countVisibleItemsPerPage = 0;
   private _scrollTop = 0;
+  private _onFetch = false;
 
   constructor(
     private _containerRef: ElementRef,
@@ -33,17 +43,14 @@ export class VirtualScrollComponent implements OnChanges {
   ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('OnChange');
+    console.log('OnChange', changes);
     this.registerEvents();
 
     // Measurements --------------------------------------------------------------
     this.calculateDimensions();
 
     if (changes['virtualScrollFor'] !== undefined) {
-
       const elem = (this._containerRef.nativeElement as HTMLElement);
-
-      this._startIndex = 0;
 
       if (elem['scrollTo']) {
         elem.scrollTo({ top: 0 });
@@ -53,17 +60,15 @@ export class VirtualScrollComponent implements OnChanges {
     this.refresh();
   }
 
+
   private registerEvents() {
     this._ngZone.runOutsideAngular(() => {
 
       if (!this._isScrollEventRegistered) {
 
-        this._renderer.listen(this._containerRef.nativeElement, 'scroll', (event: Event) => {
+        this._renderer.listen(this._wrapperRef.nativeElement, 'scroll', (event: Event) => {
           const st = (event.target as Element).scrollTop;
-
           this._scrollTop = (st < this._paddingHeight - this._containerHeight) ? st : this._paddingHeight - this._containerHeight;
-
-          console.log('Evetn: ', this._scrollTop, this._paddingHeight);
           this.refresh();
         });
 
@@ -79,15 +84,29 @@ export class VirtualScrollComponent implements OnChanges {
   }
 
   private showItems() {
-    const [lst, start] = this.calculateItems();
-    console.log(this._scrollTop, start, (lst as Array<any>).length);
+    const [lst, start, length] = this.calculateItems();
 
-    this._ngZone.run(() => this.viewChanged.emit({ collection: lst as Array<any>, fromIdx: start as number }));
+    if (this._scrollTop + this._containerHeight === this._paddingHeight) {
+
+      if (!this._onFetch) {
+        this._onFetch = true;
+
+        const subject = new Subject<Array<any>>();
+        subject.subscribe((fetchedList: any[]) => {
+          console.log('recieved: ', this.virtualScrollFor.length);
+          // this.virtualScrollFor = this.virtualScrollFor.concat(fetchedList);
+          // this.calculateDimensions();
+          this._onFetch = false;
+        });
+
+        this._ngZone.run(() => { this.fetchData.emit(subject); });
+      }
+    }
+
+    this._ngZone.run(() => this.viewChanged.emit({ collection: lst as Array<any>, start: start as number }));
   }
 
   private calculateItems() {
-    // const dimensions = this.calculateDimensions();
-    // OUTSIDE ANGULAR!!!
     const itemModulo = this._scrollTop % this.itemHeight;
 
     let translateY = this._scrollTop - itemModulo;
@@ -96,21 +115,29 @@ export class VirtualScrollComponent implements OnChanges {
 
     const start = Math.ceil(this._scrollTop / this.itemHeight);
     const lst = this.getSplicedList(start, this._countVisibleItemsPerPage);
-
-    return [lst, start];
+    return [lst, start, lst.length];
   }
 
   private calculateDimensions() {
-    console.log('Calculate Dimensions', this._containerHeight);
     const container = this._containerRef.nativeElement;
     this._containerHeight = (container as Element).clientHeight;
+
+    if (this.noScrollBar) {
+      this._containerWidth = (container as Element).clientWidth;
+      this._renderer.setStyle(this._contentRef.nativeElement, 'width', `${this._containerWidth}px`);
+    } else {
+      this._renderer.removeStyle(this._contentRef.nativeElement, 'width');
+    }
 
     const paddingHeight = this.itemHeight * this.virtualScrollFor.length;
     this._paddingHeight = (paddingHeight > 2000000) ? 2000000 : paddingHeight;
 
     this._countVisibleItemsPerPage = Math.ceil(this._containerHeight / this.itemHeight) + 3;
+    console.log('Items per Page: ', this._countVisibleItemsPerPage, this.itemHeight, this._containerHeight);
 
     this._renderer.setStyle(this._paddingRef.nativeElement, 'height', `${this._paddingHeight}px`);
+    console.log('Calculate Dimensions', this._containerHeight, this._containerWidth);
+
   }
 
   private getSplicedList(start: number, length: number) {

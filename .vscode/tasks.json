@@ -12,6 +12,11 @@
             "type": "npm",
             "script": "build:lib",
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "kill",
+            "problemMatcher": []
         }
     ]
 }

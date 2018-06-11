@@ -1,5 +1,5 @@
 
 export interface ViewCollection {
-  fromIdx: number;
+  start: number;
   collection: Array<any>;
 }

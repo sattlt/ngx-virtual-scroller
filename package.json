@@ -8,7 +8,8 @@
     "build:lib": "ng build --prod virtual-scroll",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "kill": "taskkill /IM \"node.exe\" /F"
   },
   "private": true,
   "dependencies": {

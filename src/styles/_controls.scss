@@ -1,7 +1,7 @@
 @import 'theme';
 
 [sc-button] {
-  @include boxShadow(2);
+  @include box-shadow(2);
   background-color: rgba($accent, .8);
   border: solid 1px rgba($accent, 1);
   border-radius: 2px;
@@ -13,11 +13,11 @@
   transition: box-shadow .25 ease;
 
   &:hover {
-    @include boxShadow(3);
+    @include box-shadow(3);
   }
 
   &:active {
-    @include boxShadow(1);
+    @include box-shadow(1);
   }
 }
 
@@ -28,7 +28,7 @@
 [sc-checkbox] {
   cursor: pointer;
   margin: 0;
-  opacity: .1;
+  opacity: 0;
   padding: 0;
   position: absolute;
   z-index: 10000;
@@ -39,9 +39,10 @@
     line-height: 25px;
     height: 25px;;
     display: inline-block;
+    margin: 0 16px 0 16px;
 
     &::before {
-      @include boxShadow(2);
+      @include box-shadow(2);
       background-color: $white;
       border: solid 1px $white;
       border-radius: 100%;
@@ -68,6 +69,7 @@
       padding: 0px 9px;
       position: absolute;
       text-align: right;
+      top: 0;
       transition: left .3s ease, background-color .3s ease;
       width: 50px;
     }
@@ -76,16 +78,15 @@
   &:checked+label {
 
     &::before {
-        left: 27px;
-        border-color: $enabled
+      border-color: $enabled;
+      left: 27px;
     }
 
     &::after {
       background-color: $enabled;
-      content: 'on';
       color: $white;
+      content: 'on';
       text-align: left;
     }
   }
 }
-  

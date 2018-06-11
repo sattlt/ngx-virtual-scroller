@@ -1,0 +1,43 @@
+
+:host {
+  display: block;
+  overflow: hidden;
+  // overflow-y: auto;
+  position: relative;
+
+  .virtual-scroll-wrapper {
+    box-sizing: content-box;
+    display: inline-block;
+    overflow: hidden;
+    overflow-y: auto;
+    height: 100%;
+    width: 100%;
+    position: relative;
+
+    .virtual-scroll-content {
+      height: 100%;
+      left: 0px;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
+    
+    .virtual-scroll-padding {
+      opacity: 0;
+      position: relative;
+      width: 3px;
+    }
+  }
+
+  &.no-scrollbar {
+
+    .virtual-scroll-wrapper {
+      margin-left: -50px;
+      padding: 0 50px;
+
+      .virtual-scroll-content {
+        left: 50px;
+      }
+    }
+  }
+}

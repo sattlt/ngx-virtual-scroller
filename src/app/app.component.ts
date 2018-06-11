@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { Subject, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -10,19 +11,20 @@ export class AppComponent implements OnInit {
   @ViewChild('virtualScroller') virtualScroller;
   title = 'app';
   enableFetch = false;
+  noScrollBar = false;
   itemsToGenerate = 100;
   virtualScrollItems = [];
 
   ngOnInit() {
     this.showItems(this.itemsToGenerate);
-    console.log(this.virtualScroller);
+    console.log('VirtualScrollerRef:', this.virtualScroller);
   }
 
   showItems(length: number) {
     this.virtualScrollItems = this.generateItems(this.itemsToGenerate);
   }
 
-  generateItems(length: number) {
+  generateItems(length: number, startIndex: number = 0) {
     // tslint:disable-next-line:max-line-length
     const names = ['Alfred', 'Martha', 'David', 'Donald', 'Hawkeye', 'Bruce', 'Peter', 'Christian', 'Nick', 'Stan', 'Tim', 'Paul', 'Faran', 'Leslie'];
 
@@ -32,7 +34,7 @@ export class AppComponent implements OnInit {
     const lst = [];
 
     for (let i = 0; i < length; i++) {
-      lst.push(`${i}: ${this.getRandom(lastNames)}, ${this.getRandom(names)}`);
+      lst.push(`${i + startIndex}: ${this.getRandom(lastNames)}, ${this.getRandom(names)}`);
     }
 
     console.log('Generated: ', lst.length + ' Items');
@@ -41,10 +43,15 @@ export class AppComponent implements OnInit {
 
 
 
-  fetch() {
+  fetch(callBack: Subject<Array<any>>) {
 
+    console.log('Fetch Event recieved: ');
 
-
+    setTimeout(() => {
+      this.virtualScrollItems = this.virtualScrollItems.concat(this.generateItems(10, this.virtualScrollItems.length));
+      console.log('Generate: ', this.virtualScrollItems.length);
+      callBack.next([]);
+    }, 1000);
 
   }
 
