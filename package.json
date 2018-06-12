@@ -1,6 +1,12 @@
 {
   "name": "ngx-virtual-scroll-app",
   "version": "0.0.0",
+  "license": "MIT",
+  "author": {
+    "name": "Thorsten Sattler",
+    "url": "http://about.me/thorsten.sattler",
+    "email": "info@sattler-online.info"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -9,7 +15,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "kill": "taskkill /IM \"node.exe\" /F"
+    "kill": "taskkill /IM \"node.exe\" /F",
+    "doc": "compodoc --disablePrivate --tsconfig tsconfig.json -output ./doc"
   },
   "private": true,
   "dependencies": {

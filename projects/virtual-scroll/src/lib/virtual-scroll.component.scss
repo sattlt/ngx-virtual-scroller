@@ -2,16 +2,17 @@
 :host {
   display: block;
   overflow: hidden;
+  // overflow-y: auto;
   position: relative;
 
   .virtual-scroll-wrapper {
     box-sizing: content-box;
     display: inline-block;
-    height: 100%;
     overflow: hidden;
     overflow-y: auto;
-    position: relative;
+    height: 100%;
     width: 100%;
+    position: relative;
 
     .virtual-scroll-content {
       height: 100%;

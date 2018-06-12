@@ -1,26 +1,43 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Subject } from 'rxjs';
+import { VirtualScrollComponent } from './lib/virtual-scroll.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnChanges {
 
-  @ViewChild('virtualScroller') virtualScroller;
-  title = 'app';
-  enableFetch = false;
-  noScrollBar = false;
-  itemsToGenerate = 100;
-  virtualScrollItems = [];
+  @ViewChild('virtualScroller') virtualScroller: VirtualScrollComponent;
+  public title = 'app';
+  public enableFetch = false;
+  public noScrollBar = false;
+  public itemsToGenerate = 100;
+  public virtualScrollItems = [];
+
+  constructor() {
+  }
 
   ngOnInit() {
-    this.showItems(this.itemsToGenerate);
+    this.showItems();
     console.log('VirtualScrollerRef:', this.virtualScroller);
   }
 
-  showItems(length: number) {
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes, changes['noScrollBar'], changes['enableFetch']);
+
+    if (changes['noScrollBar'] !== undefined) {
+      console.log('Scrollbar change', this.noScrollBar);
+    }
+
+    if (changes['enableFetch'] !== undefined) {
+      console.log('Fetch enable changed: ', this.enableFetch);
+    }
+  }
+
+  showItems() {
     this.virtualScrollItems = this.generateItems(this.itemsToGenerate);
   }
 
@@ -41,17 +58,17 @@ export class AppComponent implements OnInit {
     return lst;
   }
 
-
-
   fetch(callBack: Subject<Array<any>>) {
 
-    console.log('Fetch Event recieved: ');
+    console.log('Fetch Event recieved: ', this.enableFetch);
 
-    setTimeout(() => {
-      this.virtualScrollItems = this.virtualScrollItems.concat(this.generateItems(10, this.virtualScrollItems.length));
-      console.log('Generate: ', this.virtualScrollItems.length);
-      callBack.next([]);
-    }, 1000);
+    if (this.enableFetch) {
+      setTimeout(() => {
+        this.virtualScrollItems = this.virtualScrollItems.concat(this.generateItems(10, this.virtualScrollItems.length));
+        console.log('Generate: ', this.virtualScrollItems.length);
+        callBack.next([]);
+      }, 10);
+    }
 
   }
 

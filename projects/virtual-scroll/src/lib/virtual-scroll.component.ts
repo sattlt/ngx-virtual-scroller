@@ -60,6 +60,7 @@ export class VirtualScrollComponent implements OnChanges {
     this.refresh();
   }
 
+
   private registerEvents() {
     this._ngZone.runOutsideAngular(() => {
 
@@ -92,12 +93,13 @@ export class VirtualScrollComponent implements OnChanges {
 
         const subject = new Subject<Array<any>>();
         subject.subscribe((fetchedList: any[]) => {
-          this.virtualScrollFor = this.virtualScrollFor.concat(fetchedList);
-          this.calculateDimensions();
+          console.log('recieved: ', this.virtualScrollFor.length);
+          // this.virtualScrollFor = this.virtualScrollFor.concat(fetchedList);
+          // this.calculateDimensions();
           this._onFetch = false;
         });
 
-        this.fetchData.emit(subject);
+        this._ngZone.run(() => { this.fetchData.emit(subject); });
       }
     }
 
@@ -131,8 +133,11 @@ export class VirtualScrollComponent implements OnChanges {
     this._paddingHeight = (paddingHeight > 2000000) ? 2000000 : paddingHeight;
 
     this._countVisibleItemsPerPage = Math.ceil(this._containerHeight / this.itemHeight) + 3;
+    console.log('Items per Page: ', this._countVisibleItemsPerPage, this.itemHeight, this._containerHeight);
 
     this._renderer.setStyle(this._paddingRef.nativeElement, 'height', `${this._paddingHeight}px`);
+    console.log('Calculate Dimensions', this._containerHeight, this._containerWidth);
+
   }
 
   private getSplicedList(start: number, length: number) {
